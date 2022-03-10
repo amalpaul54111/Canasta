@@ -87,6 +87,13 @@ autoinclude() {
       # Automatically include CanastaUtils.php
       if ! grep -q "CanastaUtils.php" "$MW_VOLUME/config/LocalSettings.php"; then
         echo "Adding CanastaUtils.."
+        #Adding rsvg support
+        echo -e "\$wgFileExtensions = [ 'png', 'gif', 'jpg', 'jpeg', 'webp', 'svg' ];" >> "$MW_VOLUME/config/LocalSettings.php"
+        echo -e "\$wgSVGConverters = [\n\t'ImageMagick' =>\n\t\t'\$path/convert -background \"#ffffff00\" -thumbnail \$widthx\$height\\! \$input PNG:\$output'," >> "$MW_VOLUME/config/LocalSettings.php"
+        echo -e "\t\t'rsvg' => '\$path/rsvg-convert -w \$width -h \$height -o \$output \$input',\n\t];" >> "$MW_VOLUME/config/LocalSettings.php"
+        echo -e "\$wgSVGConverter = 'rsvg';\n" >> "$MW_VOLUME/config/LocalSettings.php"
+        #Setting wgUseImageMagick to false
+        sed -i 's/$wgUseImageMagick = true;/$wgUseImageMagick = false;/g' "$MW_VOLUME/config/LocalSettings.php"
         # Add include
         sed -i 's/# End of automatically generated settings./@include("CanastaUtils.php");/g' "$MW_VOLUME/config/LocalSettings.php"
         # Replace possible load calls, though we don't expect any because the initial state of the
